@@ -29,6 +29,8 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
     const foodcollection =client.db('foodDonate').collection('items')
+    const requestcollection = client.db('foodDonate').collection('request')
+
     app.get('/addfood',async(req,res)=>{
       const cursor = foodcollection.find()
       const result = await cursor.toArray()
@@ -56,6 +58,23 @@ async function run() {
         res.send(product)
 
     });
+
+    //insertrequests
+    app.post('/request', async (req, res) => {
+      const requestData = req.body;
+    
+      try {
+        // Insert the request data into the MongoDB collection
+        const result = await requestcollection.insertOne(requestData);
+    
+        // Send a success response to the client
+        res.status(200).json({ success: true, message: 'Request added successfully', result });
+      } catch (error) {
+        // Handle any errors and send an error response to the client
+        res.status(500).json({ success: false, message: 'Error adding request', error: error.message });
+      }
+    });
+    
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
