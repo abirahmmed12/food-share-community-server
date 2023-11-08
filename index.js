@@ -83,10 +83,10 @@ async function run() {
       const requestData = req.body;
     
       try {
-        // Insert the request data into the MongoDB collection
+        
         const result = await requestcollection.insertOne(requestData);
     
-        // Send a success response to the client
+      
         res.status(200).json({ success: true, message: 'Request added successfully', result });
       } catch (error) {
         // Handle any errors and send an error response to the client
