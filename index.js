@@ -11,10 +11,8 @@ const port = process.env.PORT || 5000
 
 //middle ware
 app.use(cors({
-  origin: [
-    'http://localhost:5173'
-  ],
-  credentials: true
+  
+  
 }));
 
 app.use(express.json())
@@ -33,20 +31,11 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
-const logger = (req,res,next)=>{
- 
-  next()
-}
-const verify = (req,res,next) =>{
-  const token =req?.cookies?.token
-  console.log('tok',token)
-  next()
-}
 
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
     const foodcollection =client.db('foodDonate').collection('items')
     const requestcollection = client.db('foodDonate').collection('request')
 
@@ -83,10 +72,10 @@ async function run() {
       const requestData = req.body;
     
       try {
-        
+        // Insert the request data into the MongoDB collection
         const result = await requestcollection.insertOne(requestData);
     
-      
+        // Send a success response to the client
         res.status(200).json({ success: true, message: 'Request added successfully', result });
       } catch (error) {
         // Handle any errors and send an error response to the client
@@ -94,7 +83,7 @@ async function run() {
       }
     });
     //get data
-    app.get('/request',logger,verify, async (req, res) => {
+    app.get('/request', async (req, res) => {
       console.log(req.query.email);
       console.log(req.cookies); // If you're using cookies for authentication or session management
   
@@ -148,26 +137,26 @@ async function run() {
     })
 
     //auth related
-    app.post('/jwt', async (req, res) => {
-      const user = req.body;
-      console.log('user', user);
-      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
-      res.cookie('token',token,{
-        httpOnly: true,
-        secure: true,
-        sameSite:'none'
-      })
-      res.send({success:true });
-    });
+    // app.post('/jwt', async (req, res) => {
+    //   const user = req.body;
+    //   console.log('user', user);
+    //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+    //   res.cookie('token',token,{
+    //     httpOnly: true,
+    //     secure: true,
+    //     sameSite:'none'
+    //   })
+    //   res.send({success:true });
+    // });
 
-    app.post('/logout',async(req,res)=>{
-      const user = req.body
-      res.clearCookie('token',{maxAge:0}).send({success:ture})
-    console.log(user)
-    })
+    // app.post('/logout',async(req,res)=>{
+    //   const user = req.body
+    //   res.clearCookie('token',{maxAge:0}).send({success:ture})
+    // console.log(user)
+    // })
     
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensures that the client will close when you finish/error
