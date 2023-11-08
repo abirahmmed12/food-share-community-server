@@ -31,11 +31,11 @@ async function run() {
     const foodcollection =client.db('foodDonate').collection('items')
     const requestcollection = client.db('foodDonate').collection('request')
 
-    app.get('/addfood',async(req,res)=>{
-      const cursor = foodcollection.find()
-      const result = await cursor.toArray()
-      res.send(result)
-    })
+    // app.get('/addfood',async(req,res)=>{
+    //   const cursor = foodcollection.find()
+    //   const result = await cursor.toArray()
+    //   res.send(result)
+    // })
     app.post('/addfood', async (req, res) => {
       const addfood = req.body;
       console.log(addfood);
@@ -74,7 +74,50 @@ async function run() {
         res.status(500).json({ success: false, message: 'Error adding request', error: error.message });
       }
     });
-    
+    //get data
+    app.get('/request',async(req,res)=>{
+      let query ={}
+      if(req.query?.email){
+        query={email: req.query?.email}
+      }
+      const result = await requestcollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.delete('/request/:id',async(req,res)=>{
+      const id = req.params.id
+      const query ={_id: new ObjectId(id)}
+      const result = await requestcollection.deleteOne(query)
+      res.send(result)
+    })
+
+    app.get('/requested',async(req,res)=>{
+      let query ={}
+      if(req.query?.
+        donatorname){
+        query={
+          donatorname: req.query?.
+          donatorname}
+      }
+      const result = await requestcollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.get('/addfood',async(req,res)=>{
+      let query ={}
+      if(req.query?.email){
+        query={donatorEmail: req.query?.email}
+      }
+      const result = await foodcollection.find(query).toArray()
+      res.send(result)
+    })
+
+    app.delete('/addfood/:id',async(req,res)=>{
+      const id = req.params.id
+      const query ={_id: new ObjectId(id)}
+      const result = await foodcollection.deleteOne(query)
+      res.send(result)
+    })
     
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
