@@ -1,14 +1,24 @@
 const express = require('express');
 const cors = require('cors');
+const cookieperser = require('cookie-parser')
 require('dotenv').config()
+const jwt = require('jsonwebtoken')
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 5000
 
 
+
 //middle ware
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:5173'
+  ],
+  credentials: true
+}));
+
 app.use(express.json())
+app.use(cookieperser())
 
 
 
@@ -23,6 +33,15 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+const logger = (req,res,next)=>{
+ 
+  next()
+}
+const verify = (req,res,next) =>{
+  const token =req?.cookies?.token
+  console.log('tok',token)
+  next()
+}
 
 async function run() {
   try {
@@ -75,14 +94,23 @@ async function run() {
       }
     });
     //get data
-    app.get('/request',async(req,res)=>{
-      let query ={}
-      if(req.query?.email){
-        query={email: req.query?.email}
+    app.get('/request',logger,verify, async (req, res) => {
+      console.log(req.query.email);
+      console.log(req.cookies); // If you're using cookies for authentication or session management
+  
+      let query = {};
+      if (req.query.email) {
+        query = { email: req.query.email };
       }
-      const result = await requestcollection.find(query).toArray()
-      res.send(result)
-    })
+  
+      try {
+        const result = await requestcollection.find(query).toArray();
+        res.json(result);
+      } catch (error) {
+        console.error('Error retrieving data from MongoDB:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+      }
+    });
 
     app.delete('/request/:id',async(req,res)=>{
       const id = req.params.id
@@ -117,6 +145,25 @@ async function run() {
       const query ={_id: new ObjectId(id)}
       const result = await foodcollection.deleteOne(query)
       res.send(result)
+    })
+
+    //auth related
+    app.post('/jwt', async (req, res) => {
+      const user = req.body;
+      console.log('user', user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
+      res.cookie('token',token,{
+        httpOnly: true,
+        secure: true,
+        sameSite:'none'
+      })
+      res.send({success:true });
+    });
+
+    app.post('/logout',async(req,res)=>{
+      const user = req.body
+      res.clearCookie('token',{maxAge:0}).send({success:ture})
+    console.log(user)
     })
     
     // Send a ping to confirm a successful connection
