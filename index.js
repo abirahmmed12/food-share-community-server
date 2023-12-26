@@ -80,7 +80,7 @@ async function run() {
     //get data
     app.get('/request', async (req, res) => {
       console.log(req.query.email);
-      console.log(req.cookies); // If you're using cookies for authentication or session management
+      console.log(req.cookies); 
   
       let query = {};
       if (req.query.email) {
