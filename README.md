@@ -1,1 +1,12 @@
 # food-share-community-server
+...
+
+
+
+
+
+
+
+
+.
+
