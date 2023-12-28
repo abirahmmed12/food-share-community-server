@@ -133,7 +133,7 @@ async function run() {
 
 
     ('/jwt', async (req, res) => {
-    //   const user = req.body;
+    //   = req.body;
     //   console.log('user', user);
     //   const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' });
     //   res.cookie('token',token,{
